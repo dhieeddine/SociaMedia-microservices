@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorer | SocialVibe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/output.css">
+</head>
+
+<body class="bg-gray-100 dark:bg-dark-100 text-gray-900 dark:text-white min-h-screen">
+    <%- include('partials/navbar') %>
+        <%- include('partials/sidebar') %>
+
+            <main class="lg:ml-64 pt-16">
+                <div class="max-w-6xl mx-auto px-4 py-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h1 id="explorer-title" class="text-2xl font-bold">Explorer</h1>
+                        <div id="search-status" class="text-sm text-gray-500 hidden">Résultats pour "<span
+                                id="search-query-text"></span>"</div>
+                    </div>
+
+                    <!-- Search Results / Explorer Grid -->
+                    <div id="explorer-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Dynamically filled -->
+                        <div class="col-span-full flex flex-col items-center justify-center py-20 animate-pulse">
+                            <div
+                                class="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin">
+                            </div>
+                            <p class="mt-4 text-gray-500">Chargement...</p>
+                        </div>
+                    </div>
+                </div>
+            </main>
+
+            <script>
+                const USER_API = 'http://localhost:4000/api/users';
+
+                document.addEventListener('DOMContentLoaded', async () => {
+                    const params = new URLSearchParams(window.location.search);
+                    const query = params.get('q');
+                    const grid = document.getElementById('explorer-grid');
+                    const title = document.getElementById('explorer-title');
+                    const status = document.getElementById('search-status');
+                    const queryText = document.getElementById('search-query-text');
+
+                    if (query) {
+                        title.textContent = "Recherche";
+                        status.classList.remove('hidden');
+                        queryText.textContent = query;
+                        await searchUsers(query);
+                    } else {
+                        await loadTrendingUsers();
+                    }
+                });
+
+                async function searchUsers(query) {
+                    const grid = document.getElementById('explorer-grid');
+                    try {
+                        const res = await fetch(`${USER_API}/search?q=${encodeURIComponent(query)}`);
+                        const users = await res.json();
+                        renderUsers(users);
+                    } catch (e) {
+                        grid.innerHTML = '<p class="col-span-full text-center text-red-500">Erreur de chargement</p>';
+                    }
+                }
+
+                async function loadTrendingUsers() {
+                    const grid = document.getElementById('explorer-grid');
+                    try {
+                        const res = await fetch(`${USER_API}`);
+                        const users = await res.json();
+                        // Just show some users as discovery
+                        renderUsers(users.slice(0, 12));
+                    } catch (e) {
+                        grid.innerHTML = '<p class="col-span-full text-center text-red-500">Erreur de chargement</p>';
+                    }
+                }
+
+                function renderUsers(users) {
+                    const grid = document.getElementById('explorer-grid');
+                    if (users.length === 0) {
+                        grid.innerHTML = '<div class="col-span-full text-center py-20 text-gray-500">Aucun utilisateur trouvé.</div>';
+                        return;
+                    }
+
+                    grid.innerHTML = users.map(user => `
+                        <div class="bg-white dark:bg-dark-200 p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow flex flex-col items-center text-center group cursor-pointer" onclick="window.location.href='/profile/${user.username}'">
+                            <div class="relative mb-4">
+                                <img src="${user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=random`}" 
+                                     class="w-24 h-24 rounded-full border-4 border-gray-50 dark:border-dark-300 group-hover:border-primary-500 transition-colors object-cover">
+                                <div class="absolute bottom-1 right-1 w-6 h-6 bg-green-500 border-4 border-white dark:border-dark-200 rounded-full"></div>
+                            </div>
+                            <h3 class="font-bold text-lg">${user.name}</h3>
+                            <p class="text-sm text-gray-500 mb-4">@${user.username}</p>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-6 line-clamp-2 h-10">
+                                ${user.bio || "Pas encore de bio."}
+                            </p>
+                            <button class="btn-primary w-full py-2 text-sm font-semibold rounded-xl">Voir le profil</button>
+                        </div>
+                    `).join('');
+                }
+            </script>
+            <script src="/js/app.js"></script>
+</body>
+
+</html>

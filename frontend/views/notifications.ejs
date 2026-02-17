@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications | SocialVibe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/output.css">
+</head>
+
+<body class="bg-gray-100 dark:bg-dark-100 text-gray-900 dark:text-white min-h-screen">
+    <%- include('partials/navbar') %>
+        <%- include('partials/sidebar') %>
+
+            <main class="lg:ml-64 pt-16">
+                <div class="max-w-4xl mx-auto px-4 py-6">
+                    <h1 class="text-2xl font-bold mb-6">Notifications</h1>
+                    <div id="notifications-container" class="space-y-4">
+                        <!-- Dynamically filled -->
+                        <div class="text-center py-10 text-gray-500">Chargement...</div>
+                    </div>
+                </div>
+            </main>
+            <script src="/js/notifications.js"></script>
+            <script src="/js/app.js"></script>
+</body>
+
+</html>

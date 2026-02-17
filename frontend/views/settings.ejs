@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paramètres | SocialVibe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/output.css">
+</head>
+
+<body class="bg-gray-100 dark:bg-dark-100 text-gray-900 dark:text-white min-h-screen">
+    <%- include('partials/navbar') %>
+        <%- include('partials/sidebar') %>
+
+            <main class="lg:ml-64 pt-16">
+                <div class="max-w-3xl mx-auto px-4 py-6">
+                    <h1 class="text-2xl font-bold mb-6">Paramètres</h1>
+
+                    <div
+                        class="bg-white dark:bg-dark-200 rounded-xl shadow-sm overflow-hidden divide-y divide-gray-100 dark:divide-dark-300">
+                        <div
+                            class="p-4 hover:bg-gray-50 dark:hover:bg-dark-300 transition-colors cursor-pointer flex justify-between items-center">
+                            <div>
+                                <h3 class="font-medium">Compte</h3>
+                                <p class="text-sm text-gray-500">Gérer vos informations personnelles</p>
+                            </div>
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+
+                        <div
+                            class="p-4 hover:bg-gray-50 dark:hover:bg-dark-300 transition-colors cursor-pointer flex justify-between items-center">
+                            <div>
+                                <h3 class="font-medium">Confidentialité</h3>
+                                <p class="text-sm text-gray-500">Contrôler qui peut voir votre profil</p>
+                            </div>
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+
+                        <div
+                            class="p-4 hover:bg-gray-50 dark:hover:bg-dark-300 transition-colors cursor-pointer flex justify-between items-center">
+                            <div>
+                                <h3 class="font-medium">Notifications</h3>
+                                <p class="text-sm text-gray-500">Choisir vos préférences de notification</p>
+                            </div>
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+
+                        <div
+                            class="p-4 hover:bg-gray-50 dark:hover:bg-dark-300 transition-colors cursor-pointer flex justify-between items-center">
+                            <div>
+                                <h3 class="font-medium">Apparence</h3>
+                                <p class="text-sm text-gray-500">Thème sombre, taille de police...</p>
+                            </div>
+                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5l7 7-7 7" />
+                            </svg>
+                        </div>
+                    </div>
+
+                </div>
+            </main>
+            <script src="/js/app.js"></script>
+</body>
+
+</html>

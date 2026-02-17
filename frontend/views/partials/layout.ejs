@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="fr" class="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | SocialVibe</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/output.css">
+  <script>
+    // Dark mode initialization
+    if (localStorage.getItem('darkMode') === 'true' || 
+        (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    }
+  </script>
+</head>
+<body class="bg-gray-100 dark:bg-dark-100 text-gray-900 dark:text-white min-h-screen transition-colors duration-300">
+  <%- body %>
+  <script src="/js/app.js"></script>
+</body>
+</html>

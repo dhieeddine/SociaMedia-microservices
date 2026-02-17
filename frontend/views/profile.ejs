@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil | SocialVibe</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/output.css">
+  <script>
+    if (localStorage.getItem('darkMode') === 'true' ||
+      (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    }
+  </script>
+</head>
+
+<body class="bg-gray-100 dark:bg-dark-100 text-gray-900 dark:text-white min-h-screen">
+
+  <%- include('partials/navbar') %>
+    <%- include('partials/sidebar') %>
+
+      <!-- Main Content -->
+      <main class="lg:ml-64 pt-16">
+        <div class="max-w-4xl mx-auto px-4 py-6">
+
+          <!-- Profile Header -->
+          <div class="bg-white dark:bg-dark-200 rounded-xl shadow-lg overflow-hidden mb-6">
+            <!-- Cover Image -->
+            <div id="profile-cover" class="h-48 md:h-64 bg-gradient-to-r from-primary-400 via-primary-500 to-purple-500 relative bg-cover bg-center">
+              <input type="file" id="cover-input" accept="image/*" class="hidden">
+              <button id="change-cover-btn"
+                class="absolute bottom-4 right-4 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span class="text-sm">Modifier</span>
+              </button>
+            </div>
+
+            <!-- Profile Info -->
+            <div class="px-6 pb-6">
+              <div class="flex flex-col md:flex-row md:items-end md:justify-between -mt-16 md:-mt-12">
+                <div class="flex flex-col md:flex-row md:items-end gap-4">
+                  <!-- Avatar -->
+                  <div class="relative">
+                    <input type="file" id="avatar-input" accept="image/*" class="hidden">
+                    <img id="profile-avatar"
+                      src="https://ui-avatars.com/api/?name=User&background=0ea5e9&color=fff&size=128" alt="Profile"
+                      class="w-32 h-32 rounded-full border-4 border-white dark:border-dark-200 shadow-lg object-cover">
+                    <button id="change-avatar-btn"
+                      class="absolute bottom-2 right-2 p-2 bg-primary-500 hover:bg-primary-600 text-white rounded-full shadow-lg transition-colors">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  <!-- Name & Username -->
+                  <div class="mt-4 md:mt-0 md:mb-2">
+                    <h1 id="profile-name" class="text-2xl font-bold">
+                      Chargement...
+                    </h1>
+                    <p id="profile-username" class="text-gray-500 dark:text-gray-400">@username
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-3 mt-4 md:mt-0">
+                  <button id="edit-profile-btn" class="btn-primary flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                    Modifier le profil
+                  </button>
+                  <button id="follow-btn" class="btn-secondary px-6 hidden">Suivre</button>
+                </div>
+              </div>
+
+              <!-- Bio -->
+              <div class="mt-6">
+                <p id="profile-bio" class="text-gray-700 dark:text-gray-300">
+                  🚀 Passionné de tech & développement web
+                </p>
+              </div>
+
+              <!-- Stats -->
+              <div class="flex gap-6 mt-6 pt-6 border-t border-gray-100 dark:border-dark-400">
+                <div class="text-center">
+                  <span id="count-posts" class="block text-2xl font-bold">0</span>
+                  <span class="text-sm text-gray-500">Posts</span>
+                </div>
+                <div class="text-center cursor-pointer hover:text-primary-500 transition-colors">
+                  <span id="count-followers" class="block text-2xl font-bold">0</span>
+                  <span class="text-sm text-gray-500">Abonnés</span>
+                </div>
+                <div class="text-center cursor-pointer hover:text-primary-500 transition-colors">
+                  <span id="count-following" class="block text-2xl font-bold">0</span>
+                  <span class="text-sm text-gray-500">Abonnements</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Profile Tabs -->
+          <div class="bg-white dark:bg-dark-200 rounded-xl shadow-md mb-6">
+            <div class="flex border-b border-gray-100 dark:border-dark-400">
+              <button class="flex-1 py-4 text-center font-semibold text-primary-500 border-b-2 border-primary-500">
+                <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+                Publications
+              </button>
+              <button
+                class="flex-1 py-4 text-center font-semibold text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                </svg>
+                Enregistrés
+              </button>
+              <button
+                class="flex-1 py-4 text-center font-semibold text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+                <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                </svg>
+                Identifié
+              </button>
+            </div>
+          </div>
+
+          <!-- Posts Grid -->
+          <div id="profile-posts-grid" class="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-4">
+            <!-- Dynamically filled -->
+            <div class="animate-pulse bg-gray-200 dark:bg-dark-300 aspect-square rounded-xl"></div>
+            <div class="animate-pulse bg-gray-200 dark:bg-dark-300 aspect-square rounded-xl"></div>
+            <div class="animate-pulse bg-gray-200 dark:bg-dark-300 aspect-square rounded-xl"></div>
+          </div>
+
+        </div>
+      </main>
+
+
+      <!-- Edit Profile Modal -->
+      <div id="edit-profile-modal"
+        class="fixed inset-0 z-50 bg-black/50 hidden flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white dark:bg-dark-200 rounded-2xl w-full max-w-md p-6 shadow-2xl">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold">Modifier le profil</h3>
+            <button id="close-edit-modal"
+              class="p-2 hover:bg-gray-100 dark:hover:bg-dark-300 rounded-full transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <form id="edit-profile-form" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">Nom complet</label>
+              <input type="text" id="edit-name"
+                class="w-full bg-gray-100 dark:bg-dark-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all">
+            </div>
+            <div>
+              <label class="block text-sm font-medium mb-1">Bio</label>
+              <textarea id="edit-bio" rows="3"
+                class="w-full bg-gray-100 dark:bg-dark-300 rounded-xl px-4 py-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"></textarea>
+            </div>
+            <div class="pt-4 flex gap-3">
+              <button type="button" id="cancel-edit" class="flex-1 btn-secondary">Annuler</button>
+              <button type="submit" class="flex-2 btn-primary">Enregistrer</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Followers/Following Modal -->
+      <div id="users-modal" class="fixed inset-0 z-50 bg-black/50 hidden flex items-center justify-center backdrop-blur-sm">
+        <div class="bg-white dark:bg-dark-200 rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-[80vh] flex flex-col">
+          <div class="flex justify-between items-center mb-6">
+            <h3 id="users-modal-title" class="text-xl font-bold">Abonnés</h3>
+            <button id="close-users-modal" class="p-2 hover:bg-gray-100 dark:hover:bg-dark-300 rounded-full transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          
+          <div id="users-list" class="overflow-y-auto flex-1 space-y-4">
+            <!-- Dynamically filled -->
+          </div>
+        </div>
+      </div>
+
+      <script src="/js/profile.js"></script>
+      <script src="/js/app.js"></script>
+</body>
+
+</html>

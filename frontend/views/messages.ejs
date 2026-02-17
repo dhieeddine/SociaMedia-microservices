@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages | SocialVibe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/output.css">
+</head>
+
+<body class="bg-gray-100 dark:bg-dark-100 text-gray-900 dark:text-white min-h-screen">
+    <%- include('partials/navbar') %>
+        <%- include('partials/sidebar') %>
+
+            <main class="lg:ml-64 pt-16 h-[calc(100vh)] flex">
+                <!-- Sidebar des conversations -->
+                <div class="w-80 bg-white dark:bg-dark-200 border-r border-gray-200 dark:border-dark-400 flex flex-col">
+                    <div class="p-4 border-b border-gray-200 dark:border-dark-400">
+                        <h2 class="font-bold text-lg">Discussions</h2>
+                    </div>
+                    <div id="conversations-list" class="flex-1 overflow-y-auto p-2 space-y-2">
+                        <!-- Liste chargée dynamiquement -->
+                        <p class="text-center text-gray-500 text-sm mt-4">Chargement...</p>
+                    </div>
+                </div>
+
+                <!-- Zone de chat -->
+                <div class="flex-1 flex flex-col bg-gray-50 dark:bg-dark-100">
+                    <div id="chat-header"
+                        class="bg-white dark:bg-dark-200 p-4 border-b border-gray-200 dark:border-dark-400 hidden">
+                        <div class="flex items-center gap-3">
+                            <img id="chat-avatar" src="" class="w-10 h-10 rounded-full">
+                            <h3 id="chat-username" class="font-bold"></h3>
+                        </div>
+                    </div>
+
+                    <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4">
+                        <div class="flex h-full items-center justify-center text-gray-400">
+                            <p>Sélectionnez une conversation pour commencer</p>
+                        </div>
+                    </div>
+
+                    <form id="message-form"
+                        class="bg-white dark:bg-dark-200 p-4 border-t border-gray-200 dark:border-dark-400 hidden">
+                        <div class="flex gap-2">
+                            <input type="text" id="message-input"
+                                class="flex-1 bg-gray-100 dark:bg-dark-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                placeholder="Écrivez votre message...">
+                            <button type="submit"
+                                class="bg-primary-500 text-white p-2 rounded-full hover:bg-primary-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 19l9-2-9-18-9 18 9-2zm0 0v-8" />
+                                </svg>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </main>
+
+            <script src="/js/app.js"></script>
+            <script>
+                const API_GATEWAY = 'http://localhost:4000';
+                let currentChatUserId = null;
+                let currentUser = null;
+
+                document.addEventListener('DOMContentLoaded', async () => {
+                    const userStr = localStorage.getItem('user');
+                    if (!userStr) return window.location.href = '/login';
+                    currentUser = JSON.parse(userStr);
+
+                    await loadConversations();
+                });
+
+                async function loadConversations() {
+                    try {
+                        // Pour l'instant on charge tous les utilisateurs comme "amis" pour la démo
+                        // Idéalement ce serait via /api/users/:id/friends ou /api/messages/conversations/:id
+                        const res = await fetch(`${API_GATEWAY}/api/users`);
+                        const users = await res.json();
+
+                        const list = document.getElementById('conversations-list');
+                        list.innerHTML = users
+                            .filter(u => u._id !== currentUser._id)
+                            .map(u => `
+                <div onclick="openChat('${u._id}', '${u.name}')" class="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-dark-300 cursor-pointer transition-colors">
+                    <img src="https://ui-avatars.com/api/?name=${u.name}&background=random" class="w-10 h-10 rounded-full">
+                    <div>
+                        <p class="font-semibold text-sm">${u.name}</p>
+                        <p class="text-xs text-gray-500">Cliquez pour discuter</p>
+                    </div>
+                </div>
+            `).join('');
+                    } catch (err) {
+                        console.error(err);
+                    }
+                }
+
+                async function openChat(userId, userName) {
+                    currentChatUserId = userId;
+
+                    // Update Header
+                    document.getElementById('chat-header').classList.remove('hidden');
+                    document.getElementById('message-form').classList.remove('hidden');
+                    document.getElementById('chat-username').textContent = userName;
+                    document.getElementById('chat-avatar').src = `https://ui-avatars.com/api/?name=${userName}&background=random`;
+
+                    await loadMessages();
+                }
+
+                async function loadMessages() {
+                    if (!currentChatUserId) return;
+
+                    try {
+                        const res = await fetch(`${API_GATEWAY}/api/messages/${currentUser._id}/${currentChatUserId}`);
+                        const messages = await res.json();
+
+                        const container = document.getElementById('messages-container');
+                        container.innerHTML = messages.map(msg => {
+                            const isMe = msg.senderId === currentUser._id;
+                            return `
+                    <div class="flex ${isMe ? 'justify-end' : 'justify-start'}">
+                        <div class="max-w-xs px-4 py-2 rounded-2xl ${isMe ? 'bg-primary-500 text-white' : 'bg-gray-200 dark:bg-dark-300'}">
+                            <p>${msg.content}</p>
+                        </div>
+                    </div>
+                `;
+                        }).join('');
+
+                        container.scrollTop = container.scrollHeight;
+                    } catch (err) {
+                        console.error(err);
+                    }
+                }
+
+                document.getElementById('message-form').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const input = document.getElementById('message-input');
+                    const content = input.value.trim();
+
+                    if (!content || !currentChatUserId) return;
+
+                    try {
+                        await fetch(`${API_GATEWAY}/api/messages`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                senderId: currentUser._id,
+                                receiverId: currentChatUserId,
+                                content
+                            })
+                        });
+
+                        input.value = '';
+                        await loadMessages();
+                    } catch (err) {
+                        console.error(err);
+                    }
+                });
+
+                // Poll for new messages every 3 seconds
+                setInterval(loadMessages, 3000);
+            </script>
+</body>
+
+</html>
