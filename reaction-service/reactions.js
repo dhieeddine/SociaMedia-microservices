@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const notifBreaker = require('./utils/breaker');
 
 // Reaction Schema
 const reactionSchema = new mongoose.Schema({
@@ -66,8 +67,13 @@ router.post('/', async (req, res) => {
         const newReaction = new Reaction({ postId, userId, type: type || 'like' });
         await newReaction.save();
 
-        // Optional: Trigger notification via Notification Service (fetch call)
-        // fetch('http://localhost:3002/', { ... })
+        // Envoyer une notification via Circuit Breaker
+        notifBreaker.fire({
+            userId: userId, // Idéalement le propriétaire du post, mais ici on notifie l'action
+            fromUserId: userId,
+            type: 'reaction',
+            message: `Quelqu'un a réagi "${type || 'like'}" à votre post.`
+        }).catch(err => console.error("Reaction Breaker error:", err.message));
 
         res.status(201).json({ message: 'Reaction added', action: 'added', reaction: newReaction });
     } catch (err) {

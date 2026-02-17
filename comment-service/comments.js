@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const notifBreaker = require('./utils/breaker');
 
 const commentSchema = new mongoose.Schema({
     postId: { type: String, required: true },
@@ -31,7 +32,13 @@ router.post('/', async (req, res) => {
         const newComment = new Comment({ postId, userId, username, content });
         await newComment.save();
 
-        // Optional: Notify the post owner (logic could be added here to call notification-service)
+        // Envoyer une notification via Circuit Breaker
+        notifBreaker.fire({
+            userId: userId, // Idéalement le propriétaire du post
+            fromUserId: userId,
+            type: 'comment',
+            message: `${username} a commenté votre post.`
+        }).catch(err => console.error("Comment Breaker error:", err.message));
 
         res.status(201).json(newComment);
     } catch (err) {

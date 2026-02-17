@@ -6,6 +6,7 @@ const router = express.Router();
 // Import de Mongoose et bcrypt
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const notifBreaker = require('./utils/breaker');
 
 // Définition du schéma User
 const userSchema = new mongoose.Schema({
@@ -260,22 +261,13 @@ router.post('/:id/follow', async (req, res) => {
       await user.updateOne({ $push: { followers: req.body.userId } });
       await currentUser.updateOne({ $push: { following: req.params.id } });
 
-      // Envoyer une notification (Non-bloquant)
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 secondes max
-
-      fetch('http://localhost:3002/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userId: req.params.id,
-          fromUserId: currentUser._id,
-          type: 'follow',
-          message: `${currentUser.name} a commencé à vous suivre.`
-        }),
-        signal: controller.signal
-      }).then(() => clearTimeout(timeoutId))
-        .catch(err => console.error("Erreur notification follow:", err.message));
+      // Envoyer une notification via Circuit Breaker
+      notifBreaker.fire({
+        userId: req.params.id,
+        fromUserId: currentUser._id,
+        type: 'follow',
+        message: `${currentUser.name} a commencé à vous suivre.`
+      }).catch(err => console.error("Circuit Breaker error details:", err.message));
 
       res.status(200).json({ message: "Utilisateur suivi" });
     } else {

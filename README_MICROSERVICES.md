@@ -57,3 +57,20 @@ Pour chaque dossier de service (`post-service`, `notification-service`, `message
 
 Le frontend doit maintenant pointer vers la **Gateway** au lieu de pointer directement vers le `user-service`.
 Modifiez `frontend/public/js/auth.js` (et autres fichiers JS) pour utiliser l'URL de la Gateway (ex: `http://localhost:4000/api`) au lieu de `http://localhost:5000/api`.
+
+## Architecture Circuit Breaker 🛡️ (Branche `feature/circuit-breaker`)
+
+Cette version implémente le pattern **Circuit Breaker** pour sécuriser les communications inter-services.
+
+### Services implémentés :
+- **User Service** → Wrapper vers Notification Service.
+- **Reaction Service** → Wrapper vers Notification Service.
+- **Comment Service** → Wrapper vers Notification Service.
+
+### Rôle du Circuit Breaker :
+Si le service de notification est indisponible :
+1. **Isolement** : Les échecs répétés ouvrent le circuit.
+2. **Fallback** : Les notifications sont ignorées silencieusement (avec log) au lieu de faire planter le processus principal ou de faire attendre l'utilisateur inutilement.
+3. **Résilience** : Le système tente de se reconnecter périodiquement de manière automatique.
+
+Technologie : `opossum` (implémentation du standard Hystrix).
