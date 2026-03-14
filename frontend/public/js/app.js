@@ -3,6 +3,13 @@
 // ==================
 document.addEventListener('DOMContentLoaded', () => {
   const userStr = localStorage.getItem('user');
+  const path = window.location.pathname;
+
+  // Redirection automatique vers Login si non connecté (Page par défaut)
+  if (!userStr && path !== '/login' && path !== '/register') {
+    window.location.replace('/login');
+    return;
+  }
 
   if (userStr) {
     try {

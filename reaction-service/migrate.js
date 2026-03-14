@@ -20,8 +20,14 @@ const reactionSchema = new mongoose.Schema({
 
 const migrate = async () => {
     try {
-        const postUri = "mongodb+srv://dhia_db:root@cluster0.xtxby2e.mongodb.net/post_db?appName=Cluster0&retryWrites=true&w=majority";
+        // Use environment variables - NEVER hardcode credentials!
+        const postUri = process.env.POST_DB_URI || process.env.MONGO_URI;
         const reactionUri = process.env.MONGO_URI;
+
+        if (!postUri || !reactionUri) {
+            console.error('❌ Missing MONGO_URI or POST_DB_URI in .env file');
+            process.exit(1);
+        }
 
         console.log('Connecting to Post DB...');
         const postConn = await mongoose.createConnection(postUri).asPromise();

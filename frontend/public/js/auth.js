@@ -38,6 +38,7 @@ if (loginForm) {
             if (response.ok) {
                 console.log("✅ Succès, redirection...");
                 localStorage.setItem('user', JSON.stringify(data.user));
+                localStorage.setItem('token', data.token); // SAUVEGARDE DU TOKEN
 
                 // On utilise replace pour forcer le navigateur à sortir de la page de login
                 window.location.replace('/');
@@ -87,6 +88,7 @@ if (registerForm) {
             if (response.ok) {
                 console.log("✅ Inscription réussie !");
                 localStorage.setItem('user', JSON.stringify(data.user));
+                localStorage.setItem('token', data.token); // SAUVEGARDE DU TOKEN
                 window.location.replace('/');
             } else {
                 console.error("❌ Échec inscription :", data.error);
@@ -108,6 +110,7 @@ if (registerForm) {
 // ==================
 function logout() {
     localStorage.removeItem('user');
+    localStorage.removeItem('token'); // SUPPRESSION DU TOKEN
     window.location.replace('/login');
 }
 

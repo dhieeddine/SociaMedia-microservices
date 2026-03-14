@@ -1,0 +1,132 @@
+version: '3.8'
+
+services:
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: ../Dockerfile.microservice
+      args:
+        PORT: 4000
+    container_name: sm_gateway
+    ports:
+      - "4000:4000"
+    env_file: ./gateway/.env
+    restart: always
+    networks:
+      - sm_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../Dockerfile.microservice
+      args:
+        PORT: 3000
+    container_name: sm_frontend
+    ports:
+      - "3000:3000"
+    env_file: ./frontend/.env
+    restart: always
+    networks:
+      - sm_network
+
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: ../Dockerfile.microservice
+      args:
+        PORT: 5000
+    container_name: sm_user_service
+    ports:
+      - "5000:5000"
+    env_file: ./user-service/.env
+    restart: always
+    networks:
+      - sm_network
+
+  post-service:
+    build:
+      context: ./post-service
+      dockerfile: ../Dockerfile.microservice
+      args:
+        PORT: 3001
+    container_name: sm_post_service
+    ports:
+      - "3001:3001"
+    env_file: ./post-service/.env
+    restart: always
+    networks:
+      - sm_network
+
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: ../Dockerfile.microservice
+      args:
+        PORT: 3002
+    container_name: sm_notification_service
+    ports:
+      - "3002:3002"
+    env_file: ./notification-service/.env
+    restart: always
+    networks:
+      - sm_network
+
+  message-service:
+    build:
+      context: ./message-service
+      dockerfile: ../Dockerfile.microservice
+      args:
+        PORT: 3003
+    container_name: sm_message_service
+    ports:
+      - "3003:3003"
+    env_file: ./message-service/.env
+    restart: always
+    networks:
+      - sm_network
+
+  comment-service:
+    build:
+      context: ./comment-service
+      dockerfile: ../Dockerfile.microservice
+      args:
+        PORT: 3004
+    container_name: sm_comment_service
+    ports:
+      - "3004:3004"
+    env_file: ./comment-service/.env
+    restart: always
+    networks:
+      - sm_network
+
+  story-service:
+    build:
+      context: ./story-service
+      dockerfile: ../Dockerfile.microservice
+      args:
+        PORT: 3005
+    container_name: sm_story_service
+    ports:
+      - "3005:3005"
+    env_file: ./story-service/.env
+    restart: always
+    networks:
+      - sm_network
+
+  reaction-service:
+    build:
+      context: ./reaction-service
+      dockerfile: ../Dockerfile.microservice
+      args:
+        PORT: 3006
+    container_name: sm_reaction_service
+    ports:
+      - "3006:3006"
+    env_file: ./reaction-service/.env
+    restart: always
+    networks:
+      - sm_network
+
+networks:
+  sm_network:
+    driver: bridge

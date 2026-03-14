@@ -1,11 +1,24 @@
-
 // Import d'Express et création du routeur
 const express = require('express');
 const router = express.Router();
 
-// Import de Mongoose et bcrypt
+// Import de Mongoose et bcryptjs
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+// Middleware d'authentification
+const authMiddleware = (req, res, next) => {
+  const token = req.header('Authorization')?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'Accès refusé. Aucun token fourni.' });
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret_temporaire');
+    req.user = decoded;
+    next();
+  } catch (err) {
+    res.status(400).json({ error: 'Token invalide.' });
+  }
+};
 
 // Définition du schéma User
 const userSchema = new mongoose.Schema({
@@ -36,6 +49,12 @@ router.post('/register', async (req, res) => {
     if (!name || !username || !email || !password) {
       return res.status(400).json({
         error: 'Tous les champs sont requis'
+      });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({
+        error: 'Le mot de passe doit contenir au moins 6 caractères'
       });
     }
 
@@ -81,9 +100,16 @@ router.post('/register', async (req, res) => {
       createdAt: user.createdAt
     };
 
+    const token = jwt.sign(
+      { id: user._id, username: user.username },
+      process.env.JWT_SECRET || 'secret_temporaire',
+      { expiresIn: '7d' }
+    );
+
     res.status(201).json({
       message: 'Utilisateur créé avec succès',
-      user: userResponse
+      user: userResponse,
+      token
     });
 
   } catch (err) {
@@ -136,9 +162,16 @@ router.post('/login', async (req, res) => {
       createdAt: user.createdAt
     };
 
+    const token = jwt.sign(
+      { id: user._id, username: user.username },
+      process.env.JWT_SECRET || 'secret_temporaire',
+      { expiresIn: '7d' }
+    );
+
     res.json({
       message: 'Connexion réussie',
-      user: userResponse
+      user: userResponse,
+      token
     });
 
   } catch (err) {
@@ -157,11 +190,14 @@ router.get('/search', async (req, res) => {
     const query = req.query.q;
     if (!query) return res.json([]);
 
+    const escapeRegex = (text) => text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+    const safeQuery = escapeRegex(query);
+
     // Rechercher par nom ou username (insensible à la casse)
     const users = await User.find({
       $or: [
-        { name: { $regex: query, $options: 'i' } },
-        { username: { $regex: query, $options: 'i' } }
+        { name: { $regex: safeQuery, $options: 'i' } },
+        { username: { $regex: safeQuery, $options: 'i' } }
       ]
     }).select('name username avatar bio').limit(10);
 
@@ -239,32 +275,41 @@ router.get('/:id/following', async (req, res) => {
 });
 
 // =========================
-// DELETE /api/users/:id → supprimer un utilisateur
-// =========================
-// =========================
 // POST /:id/follow → suivre un utilisateur
 // =========================
-router.post('/:id/follow', async (req, res) => {
-  if (req.body.userId === req.params.id) {
+router.post('/:id/follow', authMiddleware, async (req, res) => {
+  const currentUserId = req.user.id;
+  
+  if (currentUserId === req.params.id) {
     return res.status(403).json({ error: "Vous ne pouvez pas vous suivre vous-même" });
   }
+  
   try {
-    const user = await User.findById(req.params.id);
-    const currentUser = await User.findById(req.body.userId);
+    const userToFollow = await User.findById(req.params.id);
+    const currentUser = await User.findById(currentUserId);
 
-    if (!user || !currentUser) {
+    if (!userToFollow || !currentUser) {
       return res.status(404).json({ error: "Utilisateur introuvable" });
     }
 
-    if (!user.followers.includes(req.body.userId)) {
-      await user.updateOne({ $push: { followers: req.body.userId } });
-      await currentUser.updateOne({ $push: { following: req.params.id } });
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: req.params.id, followers: { $ne: currentUserId } },
+      { $addToSet: { followers: currentUserId } }
+    );
+
+    if (updatedUser) {
+      await User.updateOne(
+        { _id: currentUserId },
+        { $addToSet: { following: req.params.id } }
+      );
 
       // Envoyer une notification (Non-bloquant)
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 secondes max
 
-      fetch('http://localhost:3002/', {
+      const notificationUrl = process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:3002/';
+      
+      fetch(notificationUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -289,21 +334,31 @@ router.post('/:id/follow', async (req, res) => {
 // =========================
 // POST /:id/unfollow → ne plus suivre un utilisateur
 // =========================
-router.post('/:id/unfollow', async (req, res) => {
-  if (req.body.userId === req.params.id) {
+router.post('/:id/unfollow', authMiddleware, async (req, res) => {
+  const currentUserId = req.user.id;
+  
+  if (currentUserId === req.params.id) {
     return res.status(403).json({ error: "Vous ne pouvez pas vous ne plus suivre vous-même" });
   }
+  
   try {
-    const user = await User.findById(req.params.id);
-    const currentUser = await User.findById(req.body.userId);
+    const userToUnfollow = await User.findById(req.params.id);
+    const currentUser = await User.findById(currentUserId);
 
-    if (!user || !currentUser) {
+    if (!userToUnfollow || !currentUser) {
       return res.status(404).json({ error: "Utilisateur introuvable" });
     }
 
-    if (user.followers.includes(req.body.userId)) {
-      await user.updateOne({ $pull: { followers: req.body.userId } });
-      await currentUser.updateOne({ $pull: { following: req.params.id } });
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: req.params.id, followers: currentUserId },
+      { $pull: { followers: currentUserId } }
+    );
+
+    if (updatedUser) {
+      await User.updateOne(
+        { _id: currentUserId },
+        { $pull: { following: req.params.id } }
+      );
       res.status(200).json({ message: "Utilisateur non suivi" });
     } else {
       res.status(403).json({ error: "Vous ne suivez pas cet utilisateur" });
@@ -316,7 +371,11 @@ router.post('/:id/unfollow', async (req, res) => {
 // =========================
 // PUT /api/users/:id → mettre à jour le profil
 // =========================
-router.put('/:id', async (req, res) => {
+router.put('/:id', authMiddleware, async (req, res) => {
+  if (req.user.id !== req.params.id) {
+    return res.status(403).json({ error: "Vous n'êtes pas autorisé à modifier ce profil" });
+  }
+
   try {
     const { name, avatar, coverImage, bio } = req.body;
     const updateData = {};
@@ -337,7 +396,11 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authMiddleware, async (req, res) => {
+  if (req.user.id !== req.params.id) {
+    return res.status(403).json({ error: "Vous n'êtes pas autorisé à supprimer ce profil" });
+  }
+
   try {
     await User.findByIdAndDelete(req.params.id);
     res.json({ status: 'deleted' });

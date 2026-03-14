@@ -1,7 +1,7 @@
 const express = require('express');
 const supertest = require('supertest');
 const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 // Mock mongoose
 jest.mock('mongoose', () => {
@@ -23,8 +23,8 @@ jest.mock('mongoose', () => {
     };
 });
 
-// Mock bcrypt
-jest.mock('bcrypt', () => ({
+// Mock bcryptjs
+jest.mock('bcryptjs', () => ({
     hash: jest.fn().mockResolvedValue('hashedPassword'),
     compare: jest.fn().mockResolvedValue(true),
 }));

@@ -1,0 +1,23 @@
+FROM node:18-alpine
+
+# Définir le répertoire de travail dans le conteneur
+WORKDIR /usr/src/app
+
+# Argument pour le port, optionnel, utile pour référence
+ARG PORT
+ENV PORT=$PORT
+
+# Copier les fichiers de dépendances en premier pour optimiser le cache Docker
+COPY package*.json ./
+
+# Installer les dépendances
+RUN npm install express mongoose dotenv cors
+
+# Copier le reste du code de l'application
+COPY . .
+
+# Exposer le port spécifié
+EXPOSE $PORT
+
+# Démarrer l'application
+CMD ["npm", "start"]

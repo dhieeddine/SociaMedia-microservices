@@ -169,7 +169,10 @@ async function uploadImage(file, type, user) {
 
         const res = await fetch(`${USER_API}/${currentUser._id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}` // Envoi du token
+            },
             body: JSON.stringify(updateData)
         });
 
@@ -238,7 +241,10 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const res = await fetch(`${USER_API}/${currentUser._id}`, {
                     method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}` // Envoi du token
+                    },
                     body: JSON.stringify({ name: newName, bio: newBio })
                 });
 
@@ -349,7 +355,10 @@ async function toggleFollow(targetUser, isFollowing) {
     try {
         const res = await fetch(`${USER_API}/${targetUser._id}/${endpoint}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}` // Envoi du token
+            },
             body: JSON.stringify({ userId: currentUser._id })
         });
 

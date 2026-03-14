@@ -11,8 +11,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 const postRoutes = require('./posts');
 app.use('/', postRoutes);
 
-const storyRoutes = require('./stories');
-app.use('/stories', storyRoutes);
+// Note: Stories are now handled by story-service (port 3005)
 
 mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('✅ MongoDB Post Service connected'))
