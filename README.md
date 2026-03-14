@@ -112,13 +112,13 @@ Si la base de données des posts (post_db) rencontre une défaillance ou demande
 
 `user-service/.env` :
 ```env
-MONGO_URI=mongodb+srv://dhia_db:root@cluster0.xtxby2e.mongodb.net/user_db?appName=Cluster0&retryWrites=true&w=majority
+MONGO_URI=mongodb+srv://username:password@cluster0.xtxby2e.mongodb.net/user_db?appName=Cluster0&retryWrites=true&w=majority
 PORT=5000
 ```
 
 `post-service/.env` :
 ```env
-MONGO_URI=mongodb+srv://dhia_db:root@cluster0.xtxby2e.mongodb.net/post_db?appName=Cluster0&retryWrites=true&w=majority
+MONGO_URI=mongodb+srv://username:password@cluster0.xtxby2e.mongodb.net/post_db?appName=Cluster0&retryWrites=true&w=majority
 PORT=3001
 ```
 
